@@ -430,7 +430,7 @@ def persist_to_cookie():
         f"{COOKIE_PREFIX}_ts":    now,
     }.items():
         cookie.set(k, v, max_age=COOKIE_MAX_AGE,
-                   secure=True, same_site="lax")  # boas práticas
+                   secure=True, same_site="strict")  # boas práticas
 
 def clear_cookies():
     for suffix in ("token", "email", "ts"):
