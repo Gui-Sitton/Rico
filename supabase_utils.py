@@ -406,26 +406,38 @@ COOKIE_PREFIX  = "rico_auth"           # evita colisão com outros apps
 cookie = CookieController()            # componente
 
 def restore_from_cookie():
-    """Se existir cookie válido e device autorizado, popula st.session_state."""
     token = cookie.get(f"{COOKIE_PREFIX}_token")
     email = cookie.get(f"{COOKIE_PREFIX}_email")
-    ts    = cookie.get(f"{COOKIE_PREFIX}_ts")  # epoch
-    device_id = get_or_create_device_id()
+    ts = cookie.get(f"{COOKIE_PREFIX}_ts")
+    device_id = cookie.get(f"{COOKIE_PREFIX}_device_id")
 
-    if token and email and ts and time.time() - float(ts) < COOKIE_MAX_AGE:
-        if dispositivo_autorizado(email, device_id):
-            st.session_state.update({
-                "logado": True,
-                "token":  token,
-                "user_email": email,
-                "login_time": datetime.fromtimestamp(float(ts)),
-            })
-        else:
-            # Segurança: impede que um cookie válido logue num device não autorizado
-            clear_cookies()
-            st.session_state.clear()
-            st.warning("🚫 Dispositivo não autorizado. Faça login.")
-            st.stop()
+    print(f"[DEBUG] restore_from_cookie: token={token}, email={email}, ts={ts}, device_id={device_id}")
+
+    if not all([token, email, ts, device_id]):
+        print("[DEBUG] restore_from_cookie: dados incompletos, não restaura sessão")
+        return
+
+    if time.time() - float(ts) > COOKIE_MAX_AGE:
+        print("[DEBUG] restore_from_cookie: cookie expirado")
+        clear_cookies()
+        return
+
+    # Checa no banco se dispositivo está autorizado
+    if dispositivo_autorizado(email, device_id):
+        st.session_state.update({
+            "logado": True,
+            "token": token,
+            "user_email": email,
+            "login_time": datetime.fromtimestamp(float(ts)),
+        })
+        print("[DEBUG] restore_from_cookie: sessão restaurada com sucesso")
+    else:
+        print("[DEBUG] restore_from_cookie: dispositivo não autorizado - limpando sessão")
+        clear_cookies()
+        st.session_state.clear()
+        st.warning("🚫 Dispositivo não autorizado. Faça login.")
+        st.stop()
+
 
 
 def persist_to_cookie():
