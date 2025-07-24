@@ -103,14 +103,14 @@ def requer_autenticacao():
     from datetime import datetime, timedelta
     import os
     from streamlit_cookies_controller import CookieController
-    from supabase_utils import restore_from_cookie, clear_cookies  # ajuste conforme seu módulo
+    from supabase_utils import _from_cookie, clear_cookies  # ajuste conforme seu módulo
 
     # Parâmetros de expiração
     COOKIE_MAX_AGE = int(os.getenv("COOKIE_MAX_AGE", 86400))  # padrão: 24h
 
     # Tenta restaurar a sessão, se necessário
     if "logado" not in st.session_state or not st.session_state.get("logado"):
-        restore_from_cookie()
+        _from_cookie()
 
     # Verifica se está logado após restaurar
     if st.session_state.get("logado"):
@@ -409,7 +409,7 @@ def restore_from_cookie():
     token     = cookie.get(f"{COOKIE_PREFIX}_token")
     email     = cookie.get(f"{COOKIE_PREFIX}_email")
     ts        = cookie.get(f"{COOKIE_PREFIX}_ts")
-    device_id = cookie.get(f"{COOKIE_PREFIX}_device")
+    device_id = cookie.get(f"{COOKIE_PREFIX}_device_id")
 
     print(f"[DEBUG] restore_from_cookie: token={token}, email={email}, ts={ts}, device_id={device_id}")
 
