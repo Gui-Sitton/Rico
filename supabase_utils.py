@@ -465,7 +465,7 @@ def persist_to_cookie():
     for k, v in {
         f"{COOKIE_PREFIX}_token": token,
         f"{COOKIE_PREFIX}_email": email,
-        f"{COOKIE_PREFIX}_device": device_id,
+        f"{COOKIE_PREFIX}_device_id": device_id,
         f"{COOKIE_PREFIX}_ts": now,
     }.items():
         cookie.set(k, v, max_age=COOKIE_MAX_AGE,
